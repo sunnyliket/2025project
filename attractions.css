@@ -1,0 +1,136 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffeea9; 
+    text-align: center;
+}
+
+.back-button {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 15px;
+    background-color: white;
+    color: #5D4037;
+    text-decoration: none;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-weight: bold;
+}
+
+h1 {
+    color: #5D4037; 
+}
+
+.search-box {
+    margin-bottom: 30px;
+}
+
+#searchInput {
+    width: 300px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+.search-box button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #FBC02D; 
+    color: white;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background-color: #F9A825;
+}
+
+.attraction-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.attraction-item {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 280px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-bottom: 20px;
+}
+
+.attraction-item:hover {
+    transform: scale(1.05);
+}
+
+.attraction-item img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.attraction-item h2 {
+    color: #5D4037;
+}
+
+.attraction-item p {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.hidden {
+    display: none;
+}/* (기존 body, back-button 등 스타일은 그대로 유지) */
+
+.attraction-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.attraction-item {
+    position: relative; /* 별 버튼 위치의 기준점 */
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 280px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+/* --- 즐겨찾기 별 버튼 스타일 --- */
+.favorite-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 5; 
+    padding: 5px;
+    line-height: 1;
+    filter: grayscale(100%); /* 기본 상태는 회색 */
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.2);
+}
+
+/* 즐겨찾기 되었을 때의 스타일 (노란 별) */
+.favorite-btn.favorited {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+/* (나머지 스타일은 그대로 유지) */

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>음성 안내 설정</title>
+    <link rel="stylesheet" href="voice_guide.css">
+</head>
+<body>
+    <a href="index.html" class="back-button">⬅️ 대시보드로 돌아가기</a>
+
+    <div class="setting-container">
+        <h1>🔊 음성 안내 설정</h1>
+        <p class="description">
+            음성 안내를 켜면 버튼이나 메뉴를 누를 때마다<br>
+            해당하는 내용을 소리로 읽어줍니다.
+        </p>
+
+        <div class="switch-container">
+            <span>OFF</span>
+            <label class="switch">
+                <input type="checkbox" id="voice-toggle">
+                <span class="slider"></span>
+            </label>
+            <span>ON</span>
+        </div>
+    </div>
+
+    <script src="global.js"></script>
+    <script>
+        const voiceToggle = document.getElementById('voice-toggle');
+
+        // 페이지 로드 시, 저장된 설정값으로 스위치 상태를 맞춤
+        const isVoiceEnabled = localStorage.getItem('voiceGuideEnabled') === 'true';
+        voiceToggle.checked = isVoiceEnabled;
+
+        // 스위치를 누를 때마다 설정값을 저장
+        voiceToggle.addEventListener('change', (event) => {
+            const isChecked = event.target.checked;
+            localStorage.setItem('voiceGuideEnabled', isChecked);
+        });
+    </script>
+</body>
+</html>

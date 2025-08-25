@@ -1,0 +1,85 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffeea9; 
+    color: #5D4037;
+    padding: 20px;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-weight: bold;
+    color: #5D4037;
+}
+
+.stamp-tour-container {
+    text-align: center;
+}
+
+.instructions {
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.stamp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+}
+
+.stamp-card {
+    background-color: #fff5cc;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.stamp-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 3px dashed #ddd;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    color: #ddd;
+    transition: all 0.3s ease;
+}
+
+.stamp-placeholder.green {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.stamp-placeholder.red {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.stamp-card h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* '사진 올리기' 버튼 대신 '스탬프 찍기' 버튼 스타일 */
+.stamp-btn {
+    padding: 8px 16px;
+    background-color: #FBC02D;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+}

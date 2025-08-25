@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>나만의 코스 짜기</title>
+    <link rel="stylesheet" href="course_planner.css">
+</head>
+<body>
+    <a href="index.html" class="back-button">⬅️ 대시보드로 돌아가기</a>
+    
+    <div class="planner-container">
+        <h1>✏️ 나만의 경주 코스 짜기</h1>
+        
+        <div class="map-container">
+            <img src="gyeongju_map_plan.png" alt="경주 권역 지도">
+        </div>
+
+        <div class="plan-box">
+            <p>가고 싶은 장소 4곳을 순서대로 적어보세요!</p>
+            <div class="input-group">
+                <input type="text" placeholder="1. 첫 번째 장소">
+                <input type="text" placeholder="2. 두 번째 장소">
+                <input type="text" placeholder="3. 세 번째 장소">
+                <input type="text" placeholder="4. 네 번째 장소">
+            </div>
+            <button class="save-btn">내 코스 저장하기</button>
+        </div>
+    </div>
+
+    <!-- ==================== 이 부분 추가됨 ==================== -->
+    <script>
+        // 클래스가 'plan-box'인 노란색 상자를 찾음
+        const planBox = document.querySelector('.plan-box');
+        
+        // 노란색 상자 안에 있는 첫 번째 input 칸을 찾음
+        const firstInput = document.querySelector('.plan-box input');
+
+        // 노란색 상자를 클릭했을 때
+        planBox.addEventListener('click', function() {
+            // 첫 번째 input 칸에 포커스를 맞춰서 키보드가 나오게 함
+            firstInput.focus();
+        });
+    </script>
+    <!-- ======================================================= -->
+
+</body>
+</html>

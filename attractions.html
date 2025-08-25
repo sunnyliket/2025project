@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>경주 명소 찾기</title>
+    <style>
+        /* attractions.css의 모든 내용을 여기에 포함 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffeea9; 
+            text-align: center;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 15px;
+            background-color: white;
+            color: #5D4037;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #5D4037; 
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        #searchInput {
+            width: 300px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #FBC02D; 
+            color: white;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background-color: #F9A825;
+        }
+
+        .attraction-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .attraction-item {
+            position: relative;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 280px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .attraction-item:hover {
+            transform: scale(1.05);
+        }
+
+        .attraction-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .attraction-item h2 {
+            color: #5D4037;
+        }
+        
+        .attraction-item p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 5; 
+            padding: 5px;
+            line-height: 1;
+            filter: grayscale(100%);
+            opacity: 0.5;
+            transition: all 0.2s ease;
+        }
+
+        .favorite-btn.favorited {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fff5cc; margin: 10% auto; padding: 25px; border-radius: 15px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; position: relative; }
+        .modal-close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        #modal-img { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        #modal-review { width: 100%; height: 100px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical; margin-bottom: 15px; }
+        .modal-save-btn { padding: 10px 25px; border: none; background-color: #FBC02D; color: white; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">⬅️ 대시보드로 돌아가기</a>
+    <h1>✨ 경주 명소 목록 ✨</h1>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="명소 이름을 검색해보세요...">
+        <button onclick="searchAttractions()">🔍 검색</button>
+    </div>
+    
+    <div class="attraction-list">
+        <div class="attraction-item" onclick="openAttractionModal('첨성대', 'https://www.gjne.go.kr/upload/boardManagement/contents/202102/20210203050047_67812.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('첨성대', event)">⭐</button>
+            <img src="https://www.gjne.go.kr/upload/boardManagement/contents/202102/20210203050047_67812.jpg" alt="첨성대 사진">
+            <h2>첨성대</h2>
+            <p>신라 시대에 별을 관측하던 곳</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('불국사', 'https://www.gjne.go.kr/upload/boardManagement/contents/202102/20210203050018_96504.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('불국사', event)">⭐</button>
+            <img src="https://www.gjne.go.kr/upload/boardManagement/contents/202102/20210203050018_96504.jpg" alt="불국사 사진">
+            <h2>불국사</h2>
+            <p>아름다운 신라의 절</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('동궁과 월지', 'https://www.gyeongju.go.kr/open_content/images/tour/tour_heritage_img04.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('동궁과 월지', event)">⭐</button>
+            <img src="https://www.gyeongju.go.kr/open_content/images/tour/tour_heritage_img04.jpg" alt="동궁과 월지 사진">
+            <h2>동궁과 월지</h2>
+            <p>밤에 보면 더욱 아름다운 연못</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('석굴암', 'https://images.chosun.com/resizer/lHq-sL5G2j-3y8L-Mv-iS6D_PlE=/616x0/filters:focal(294x191:304x201)/cloudfront-ap-northeast-1.images.arcpublishing.com/chosun/J627Y47FR5CFZPVX2QFYAF7D4E.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('석굴암', event)">⭐</button>
+            <img src="https://images.chosun.com/resizer/lHq-sL5G2j-3y8L-Mv-iS6D_PlE=/616x0/filters:focal(294x191:304x201)/cloudfront-ap-northeast-1.images.arcpublishing.com/chosun/J627Y47FR5CFZPVX2QFYAF7D4E.jpg" alt="석굴암 사진">
+            <h2>석굴암</h2>
+            <p>돌 동굴 속 거대한 부처님</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('대릉원', 'https://www.heritage.go.kr/images/content/palace/royal_tomb_pl_img0201_2.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('대릉원', event)">⭐</button>
+            <img src="https://www.heritage.go.kr/images/content/palace/royal_tomb_pl_img0201_2.jpg" alt="대릉원 사진">
+            <h2>대릉원</h2>
+            <p>왕들의 커다란 무덤이 모인 공원</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('국립경주박물관', 'https://www.museum.go.kr/gyeongju/upload/ckeditor/2022091410114056299.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('국립경주박물관', event)">⭐</button>
+            <img src="https://www.museum.go.kr/gyeongju/upload/ckeditor/2022091410114056299.jpg" alt="국립경주박물관 사진">
+            <h2>국립경주박물관</h2>
+            <p>신라 시대의 보물을 볼 수 있는 곳</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('월정교', 'https://www.gyeongju.go.kr/open_content/images/tour/rest_img01.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('월정교', event)">⭐</button>
+            <img src="https://www.gyeongju.go.kr/open_content/images/tour/rest_img01.jpg" alt="월정교 사진">
+            <h2>월정교</h2>
+            <p>밤에 불 켜지면 정말 예쁜 다리</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('황리단길', 'https://a.cdn-hotels.com/gdcs/production163/d26/89461149-a2e5-4e33-89a1-71337c73a30c.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('황리단길', event)">⭐</button>
+            <img src="https://a.cdn-hotels.com/gdcs/production163/d26/89461149-a2e5-4e33-89a1-71337c73a30c.jpg" alt="황리단길 사진">
+            <h2>황리단길</h2>
+            <p>예쁜 가게와 맛집이 많은 거리</p>
+        </div>
+        <div class="attraction-item" onclick="openAttractionModal('양동마을', 'https://www.gyeongju.go.kr/open_content/images/tour/tour_heritage_img02.jpg')">
+            <button class="favorite-btn" onclick="toggleFavorite('양동마을', event)">⭐</button>
+            <img src="https://www.gyeongju.go.kr/open_content/images/tour/tour_heritage_img02.jpg" alt="양동마을 사진">
+            <h2>양동마을</h2>
+            <p>옛날 양반들이 살던 민속 마을</p>
+        </div>
+    </div>
+    
+    <div id="attractionModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" onclick="closeAttractionModal()">&times;</span>
+            <img id="modal-img" src="" alt="명소 사진">
+            <h2 id="modal-title">명소 이름</h2>
+            <textarea id="modal-review" placeholder="나만의 소감을 기록해보세요..."></textarea>
+            <button id="save-btn" class="modal-save-btn">소감 저장하기</button>
+        </div>
+    </div>
+    
+    <script>
+        // attractions.js의 모든 내용을 여기에 포함
+        function searchAttractions() {
+            let searchText = document.getElementById('searchInput').value.toLowerCase();
+            let attractionItems = document.querySelectorAll('.attraction-item');
+
+            attractionItems.forEach(function(item) {
+                let title = item.querySelector('h2').textContent.toLowerCase();
+                if (title.includes(searchText)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        const modal = document.getElementById('attractionModal');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalReview = document.getElementById('modal-review');
+        const saveBtn = document.getElementById('save-btn');
+        let currentAttractionName = ''; 
+
+        function openAttractionModal(name, imageUrl) {
+            currentAttractionName = name; 
+            modalImg.src = imageUrl;
+            modalTitle.textContent = name;
+            const savedReview = localStorage.getItem(`review_${name}`);
+            modalReview.value = savedReview || '';
+            modal.style.display = 'block';
+        }
+
+        function closeAttractionModal() {
+            modal.style.display = 'none';
+        }
+
+        saveBtn.onclick = function() {
+            const reviewText = modalReview.value;
+            localStorage.setItem(`review_${currentAttractionName}`, reviewText);
+            alert('소감이 저장되었습니다!');
+            closeAttractionModal();
+        }
+
+        function toggleFavorite(name, event) {
+            event.stopPropagation(); 
+
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const starButton = event.target;
+
+            if (favorites.includes(name)) {
+                favorites = favorites.filter(fav => fav !== name);
+                starButton.classList.remove('favorited');
+            } else {
+                favorites.push(name);
+                starButton.classList.add('favorited');
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function updateFavoriteStars() {
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const attractionItems = document.querySelectorAll('.attraction-item');
+
+            attractionItems.forEach(item => {
+                const name = item.querySelector('h2').textContent;
+                const starButton = item.querySelector('.favorite-btn');
+                
+                if (favorites.includes(name)) {
+                    starButton.classList.add('favorited');
+                } else {
+                    starButton.classList.remove('favorited');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateFavoriteStars);
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                closeAttractionModal();
+            }
+        });
+
+        // global.js의 음성 안내 기능을 여기에 포함 (선택 사항)
+        document.addEventListener('click', function(event) {
+            const isVoiceEnabled = localStorage.getItem('voiceGuideEnabled') === 'true';
+            if (!isVoiceEnabled) return;
+            const targetElement = event.target.closest('a, button, .attraction-item');
+            if (targetElement) {
+                let textToSpeak = targetElement.textContent.trim();
+                if (textToSpeak) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = 'ko-KR';
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

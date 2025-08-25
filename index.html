@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 경주 여행</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 카카오맵 API: autoload=false는 필요할 때만 지도를 불러오게 함 -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&autoload=false"></script>
+</head>
+<body>
+    <div class="content-wrapper">
+
+        <!-- 사이드바 (햄버거 메뉴) -->
+        <div id="sideNav" class="sidenav">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">&times;</a>
+            <a href="attractions.html">🏛️ 명소 목록 보기</a>
+            <a href="random_course.html">🎲 랜덤 코스 추천</a>
+            <a href="favorites.html">⭐ 즐겨찾기</a>
+            <a href="course_planner.html">✏️ 코스 짜기</a>
+            <a href="stamp_tour.html">✅ 스탬프 투어</a>
+            <a href="navigation.html">🗺️ 네비게이션</a>
+            <div class="sidenav-item">
+                <span>🔊 음성안내</span>
+                <label class="switch">
+                    <input type="checkbox" id="voice-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <a href="booking.html">🗓️ 예약하기</a>
+            <a href="quiz.html">🧠 경주 퀴즈</a>
+        </div>
+
+        <!-- 헤더 (제목 부분) -->
+        <div class="header">
+            <span class="hamburger-menu" onclick="openNav()">&#9776;</span>
+            <h1>egg</h1>
+            <div class="help-button-container">
+                <span id="help-btn-open" class="help-button" onclick="openHelpModal()">?</span>
+                <span id="help-btn-close" class="help-button" onclick="closeHelpModal()">&times;</span>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 (환영 메시지) -->
+        <div class="main-content">
+            <img src="applogo.png" alt="앱 로고" class="main-logo">
+            <h2>경주 여행 앱에 오신 것을 환영합니다!</h2>
+            <p>어디로 떠나볼까요?</p>
+            <button class="map-open-btn" onclick="openMapModal()">🗺️ 지도 보기</button>
+        </div>
+
+        <!-- 하단 메뉴 -->
+        <div class="dashboard-menu">
+            <a href="attractions.html" class="menu-button">🏛️ 명소 목록 보기</a>
+            <a href="random_course.html" class="menu-button">🎲 랜덤 코스 추천</a>
+            <a href="favorites.html" class="menu-button">⭐ 즐겨찾기</a>
+        </div>
+        
+    </div>
+
+    <!-- 도움말 팝업 -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" onclick="closeHelpModal()">&times;</span>
+            <h2>💡 앱 사용 가이드</h2>
+            <div class="help-item" data-target=".hamburger-menu">
+                <div class="arrow-box"></div><p class="help-text"><strong>🍔 (햄버거 메뉴):</strong> 모든 기능을 숨겨둔 메뉴를 열어볼 수 있습니다.</p>
+            </div>
+            <div class="help-item" data-target=".main-content">
+                <div class="arrow-box"></div><p class="help-text"><strong>🗺️ (지도 보기):</strong> 버튼을 누르면 경주 지도를 볼 수 있습니다.</p>
+            </div>
+            <div class="help-item" data-target=".dashboard-menu a:nth-child(1)">
+                <div class="arrow-box"></div><p class="help-text"><strong>🏛️ 명소 목록 보기:</strong> 경주의 유명한 장소들을 사진과 함께 볼 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 지도 팝업 -->
+    <div id="mapModal" class="modal">
+        <div class="map-modal-content">
+            <span class="modal-close-btn" onclick="closeMapModal()">&times;</span>
+            <div id="map-container"></div>
+        </div>
+    </div>
+
+    <script src="global.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

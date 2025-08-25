@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>간단한 돌림판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1220;
+      --card: #171a2b;
+      --text: #e8ebf7;
+      --muted: #98a0c3;
+      --accent: #6ca0ff;
+      --danger: #ff4d4f;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35), 0 4px 10px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 800px at 70% -10%, #1e2240 0%, #0d1021 60%, #080a18 100%) no-repeat, var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, "Segoe UI", Helvetica, Arial, "맑은 고딕", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px 40px;
+    }
+    .card {
+      width: min(920px, 96vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0)) , var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .title {
+      display:flex; align-items:center; gap:10px; margin-bottom: 18px;
+      font-weight: 700; letter-spacing: .2px; font-size: 18px;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap: 22px;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* --- Wheel area --- */
+    .stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+    }
+    canvas#wheel {
+      width: 100%;
+      height: auto;
+      display: block;
+      transform: rotate(0deg);
+      will-change: transform;
+      transition: transform 4.6s cubic-bezier(.12,.66,0,1);
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.45));
+    }
+    /* Pointer */
+    .pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-bottom: 28px solid var(--danger);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+      z-index: 4;
+    }
+    .pointer::after{
+      /* little cap */
+      content:"";
+      position:absolute; left:50%; top:18px; transform:translateX(-50%);
+      width:18px; height:18px; background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 0 rgba(0,0,0,.2) inset;
+    }
+    /* Center hub just for looks */
+    .hub {
+      position:absolute;
+      width: 16%;
+      aspect-ratio: 1/1;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: inset 0 0 0 6px rgba(0,0,0,.08), 0 8px 14px rgba(0,0,0,.25);
+      display:grid; place-items:center;
+      z-index:1;
+    }
+    .hub span{
+      font-size: 11px; font-weight: 800; color:#2a2a2a; letter-spacing: .8px;
+      opacity: .8;
+    }
+
+    /* --- Controls --- */
+    .panel {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .panel label { display:block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .panel .row { display:flex; gap:8px; }
+    .panel input[type="text"]{
+      flex:1;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      color: var(--text);
+      outline: none;
+    }
+    .panel input::placeholder{ color: rgba(255,255,255,.45); }
+    .btn {
+      appearance: none;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #7bb0ff, #5b90ff);
+      color: #0b1023; font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(92,144,255,.35);
+      transition: transform .08s ease, filter .2s ease, opacity .2s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { filter: brightness(1.03); }
+    .btn:active { transform: translateY(1px) scale(.995); }
+    .btn.secondary{
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
+      color: var(--text);
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+    .result {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px dashed rgba(255,255,255,.16);
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      min-height: 48px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .result strong { font-size: 16px; }
+    .hint { margin-top: 8px; color: var(--muted); font-size: 12px; }
+
+    /* Little celebration pulse */
+    @keyframes pop {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .result.pop { animation: pop .6s ease; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="title">🎯 돌림판</div>
+
+      <div class="grid">
+        <!-- Left: Wheel -->
+        <div class="stage">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="1000" height="1000" aria-label="돌림판 캔버스"></canvas>
+          <div class="hub" style="left:50%; top:50%; transform:translate(-50%,-50%);"><span>SPIN</span></div>
+        </div>
+
+        <!-- Right: Controls -->
+        <div class="panel">
+          <label for="items">항목 (쉼표로 구분)</label>
+          <div class="row">
+            <input id="items" type="text" placeholder="예: 피자, 치킨, 햄버거, 파스타, 초밥, 떡볶이" />
+            <button id="apply" class="btn secondary" title="항목 적용">적용</button>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button id="spinBtn" class="btn" title="돌리기">돌려!</button>
+            <button id="resetBtn" class="btn secondary" title="처음으로">초기화</button>
+          </div>
+
+          <div id="result" class="result" role="status" aria-live="polite">
+            <span>결과가 여기 표시됩니다.</span>
+            <strong id="winner"></strong>
+          </div>
+
+          <div class="hint">⌨️ 스페이스바 또는 캔버스를 클릭해도 돌려요. | 최대 24개 항목</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Utility ======
+    const $ = (sel) => document.querySelector(sel);
+    const wheel = $("#wheel");
+    const ctx = wheel.getContext("2d");
+    const pointer = document.querySelector(".pointer");
+    const spinBtn = $("#spinBtn");
+    const applyBtn = $("#apply");
+    const resetBtn = $("#resetBtn");
+    const itemsInput = $("#items");
+    const resultBox = $("#result");
+    const winnerText = $("#winner");
+
+    let labels = ["피자", "치킨", "햄버거", "파스타", "초밥", "떡볶이"];
+    let colors = [];
+    let currentRotation = 0;   // 누적 회전 각도(deg)
+    let spinning = false;
+
+    // Retina canvas scaling for crisp rendering
+    function setupHiDPI(canvas) {
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2)); // cap for perf
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.width * dpr);
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.width + "px";
+      const context = canvas.getContext("2d");
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return dpr;
+    }
+
+    function degToRad(d) { return d * Math.PI / 180; }
+    function mod(n, m) { return ((n % m) + m) % m; }
+
+    // Generate pleasing distinct HSL colors
+    function makeColors(n) {
+      const list = [];
+      for (let i = 0; i < n; i++) {
+        const hue = Math.round((360 * i) / n);
+        const sat = 70;
+        const light = i % 2 === 0 ? 58 : 48;
+        list.push(`hsl(${hue}deg ${sat}% ${light}%)`);
+      }
+      return list;
+    }
+
+    // Fit text size within max width
+    function getFittedFont(ctx, text, maxPx, maxSize = 28, minSize = 11) {
+      let size = maxSize;
+      ctx.font = `700 ${size}px "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif`;
+      while (size > minSize && ctx.measureText(text).width > maxPx) {
+        size -= 1;
+        ctx.font = `700 ${size}px "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif`;
+      }
+      return ctx.font;
+    }
+
+    function drawWheel() {
+      setupHiDPI(wheel);
+      const rect = wheel.getBoundingClientRect();
+      const size = rect.width;
+      const r = size / 2;
+      const cx = r, cy = r;
+
+      ctx.clearRect(0, 0, size, size);
+
+      const n = labels.length;
+      const arc = 360 / n;
+      colors = makeColors(n);
+
+      // start angle offset so "0번 조각의 중앙 = 위쪽(-90deg)"
+      const startOffset = -90 - arc / 2;
+
+      // Outer shadow ring
+      ctx.save();
+      ctx.translate(cx, cy);
+      const grad = ctx.createRadialGradient(0,0, r*0.2, 0,0, r);
+      grad.addColorStop(0, "rgba(255,255,255,.06)");
+      grad.addColorStop(1, "rgba(0,0,0,.25)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.985, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Slices
+      for (let i = 0; i < n; i++) {
+        const start = degToRad(startOffset + i * arc);
+        const end = degToRad(startOffset + (i + 1) * arc);
+
+        // wedge
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r * 0.96, start, end);
+        ctx.closePath();
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+
+        // slice separators
+        ctx.lineWidth = Math.max(1, size * 0.003);
+        ctx.strokeStyle = "rgba(255,255,255,.75)";
+        ctx.stroke();
+      }
+
+      // Labels (horizontal, at radius ~0.7R)
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i < n; i++) {
+        const centerDeg = -90 + i * arc;
+        const a = degToRad(centerDeg);
+        const tx = cx + Math.cos(a) * r * 0.62;
+        const ty = cy + Math.sin(a) * r * 0.62;
+
+        const text = String(labels[i]);
+        ctx.save();
+        // Fit font
+        const maxWidth = r * 0.9 * Math.sin(degToRad(arc / 1.3)); // approximate available chord width
+        ctx.font = getFittedFont(ctx, text, maxWidth, Math.max(14, Math.min(28, r * 0.09)));
+        ctx.fillStyle = "#111";
+        // subtle outline for contrast
+        ctx.shadowColor = "rgba(255,255,255,.55)";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText(text, tx, ty);
+        ctx.restore();
+      }
+
+      // Rim
+      ctx.beginPath();
+      ctx.lineWidth = Math.max(6, size * 0.012);
+      ctx.strokeStyle = "#ffffff";
+      ctx.arc(cx, cy, r * 0.965, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Center hub ring (matches .hub div)
+      ctx.beginPath();
+      ctx.fillStyle = "#ffffff";
+      ctx.arc(cx, cy, r * 0.085, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function parseItemsInput() {
+      const raw = itemsInput.value.trim();
+      if (!raw) return null;
+      const arr = raw
+        .split(/[,\n]/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .slice(0, 24);
+      return arr.length >= 2 ? arr : null;
+    }
+
+    // Compute rotation end so that chosen index lands at the pointer
+    function computeTargetRotation(chosenIndex, spins) {
+      const n = labels.length;
+      const arc = 360 / n;
+
+      // We want finalRotation ≡ -chosenIndex*arc (mod 360), given currentRotation
+      const targetMod = mod(-chosenIndex * arc, 360);
+      const currMod = mod(currentRotation, 360);
+      const delta = mod(targetMod - currMod, 360);
+      const finalRotation = currentRotation + spins * 360 + delta;
+      return finalRotation;
+    }
+
+    function enableUI(enabled) {
+      spinBtn.disabled = !enabled;
+      applyBtn.disabled = !enabled;
+      resetBtn.disabled = !enabled;
+      itemsInput.disabled = !enabled;
+    }
+
+    function announce(text, winner = "") {
+      resultBox.classList.remove("pop");
+      requestAnimationFrame(() => { // restart animation
+        resultBox.classList.add("pop");
+      });
+      resultBox.querySelector("span").textContent = text;
+      winnerText.textContent = winner;
+    }
+
+    function spin() {
+      if (spinning) return;
+      if (labels.length < 2) {
+        announce("항목이 2개 이상이어야 합니다.");
+        return;
+      }
+      spinning = true;
+      enableUI(false);
+
+      const n = labels.length;
+      const chosen = Math.floor(Math.random() * n);
+
+      // 4~7회전 + 부드러운 감속
+      const extraSpins = 4 + Math.floor(Math.random() * 4);
+      const final = computeTargetRotation(chosen, extraSpins);
+
+      // Set a dynamic duration based on distance (looks more natural)
+      const distance = Math.abs(final - currentRotation);
+      const base = 2500;
+      const perTurn = 450;
+      const duration = base + perTurn * (distance / 360);
+
+      wheel.style.transitionDuration = `${duration.toFixed(0)}ms`;
+      wheel.style.transitionTimingFunction = 'cubic-bezier(.12,.66,0,1)';
+      wheel.style.transform = `rotate(${final}deg)`;
+
+      const onEnd = () => {
+        wheel.removeEventListener("transitionend", onEnd);
+        currentRotation = final;
+        spinning = false;
+        enableUI(true);
+        announce("결과:", labels[chosen]);
+      };
+      wheel.addEventListener("transitionend", onEnd, { once: true });
+    }
+
+    function resetWheel() {
+      if (spinning) return;
+      currentRotation = 0;
+      wheel.style.transitionDuration = '600ms';
+      wheel.style.transitionTimingFunction = 'cubic-bezier(.25,.8,.25,1)';
+      wheel.style.transform = 'rotate(0deg)';
+      announce("초기화 되었어요.");
+    }
+
+    // ====== Events ======
+    spinBtn.addEventListener("click", spin);
+    pointer.addEventListener("click", spin);
+    wheel.addEventListener("click", spin);
+    applyBtn.addEventListener("click", () => {
+      const arr = parseItemsInput();
+      if (!arr) {
+        announce("항목은 쉼표(,)로 구분해 2개 이상 입력하세요.");
+        return;
+      }
+      labels = arr;
+      wheel.style.transition = 'none';
+      wheel.style.transform = 'rotate(0deg)';
+      currentRotation = 0;
+      drawWheel();
+      announce("항목을 적용했어요.");
+    });
+    resetBtn.addEventListener("click", resetWheel);
+    itemsInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); applyBtn.click(); }
+    });
+    window.addEventListener("resize", drawWheel);
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") { e.preventDefault(); spin(); }
+    });
+
+    // ====== Init ======
+    (function init() {
+      itemsInput.value = labels.join(", ");
+      drawWheel();
+      announce("준비 완료! 항목을 바꾸고 돌려 보세요.");
+    })();
+  </script>
+</body>
+</html>

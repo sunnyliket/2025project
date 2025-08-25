@@ -1,0 +1,83 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffeea9; 
+    color: #5D4037;
+    padding: 20px;
+    margin: 0;
+    text-align: center;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 15px;
+    background-color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-weight: bold;
+    color: #5D4037;
+}
+
+.planner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 50px;
+}
+
+.map-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.map-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.plan-box {
+    background-color: #FBC02D; /* 노란색 직사각형 */
+    border-radius: 15px;
+    padding: 25px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.plan-box p {
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 두 줄로 표시 */
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.save-btn {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    background-color: #5D4037;
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+}
