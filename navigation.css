@@ -1,0 +1,134 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden; /* 스크롤 방지 */
+}
+
+.nav-page-container {
+    display: flex;
+    height: 100vh;
+}
+
+#map {
+    width: 65%;
+    height: 100%;
+}
+
+.control-panel {
+    width: 35%;
+    height: 100%;
+    background-color: #fff5cc;
+    padding: 25px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    color: #5D4037;
+}
+
+.back-button {
+    align-self: flex-start;
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background-color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-weight: bold;
+    color: #5D4037;
+}
+
+.control-panel h1 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.input-group {
+    margin-top: 20px;
+}
+
+.input-wrapper {
+    margin-bottom: 15px;
+}
+
+.input-wrapper label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+/* ==================== 명소 목록 스타일 추가 ==================== */
+.list-label {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.attraction-list {
+    flex-grow: 1; /* 남는 공간을 모두 차지 */
+    overflow-y: auto; /* 내용이 많으면 스크롤 */
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #eee;
+}
+
+.attraction-list-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.attraction-list-item:hover {
+    background-color: #FBC02D;
+    color: white;
+}
+/* =========================================================== */
+
+.route-find-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    background-color: #FBC02D;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px; /* 목록과의 간격 */
+}
+
+/* 화면이 좁아질 때의 반응형 디자인 */
+@media (max-width: 768px) {
+    .nav-page-container {
+        flex-direction: column;
+    }
+    #map {
+        width: 100%;
+        height: 50%;
+    }
+    .control-panel {
+        width: 100%;
+        height: 50%;
+        overflow-y: auto; /* 내용이 많으면 스크롤 */
+    }
+}
+    
