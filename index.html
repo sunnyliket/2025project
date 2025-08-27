@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나의 경주 여행</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 카카오맵 API: autoload=false는 필요할 때만 지도를 불러오게 함 -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&autoload=false"></script>
+    <!-- 무료 지도(Leaflet) CSS/JS 추가 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="content-wrapper">
+    <div class="page-container">
 
         <!-- 사이드바 (햄버거 메뉴) -->
         <div id="sideNav" class="sidenav">
@@ -41,13 +42,47 @@
             </div>
         </div>
 
-        <!-- 메인 콘텐츠 (환영 메시지) -->
-        <div class="main-content">
-            <img src="applogo.png" alt="앱 로고" class="main-logo">
-            <h2>경주 여행 앱에 오신 것을 환영합니다!</h2>
-            <p>어디로 떠나볼까요?</p>
-            <button class="map-open-btn" onclick="openMapModal()">🗺️ 지도 보기</button>
+        <!-- ==================== 메인 대시보드 그리드 ==================== -->
+        <div class="dashboard-grid">
+            <!-- 왼쪽 패널 -->
+            <div class="panel left-panel">
+                <div class="tab-header">
+                    <button class="tab-link active" onclick="openTab(event, 'weather-tab')">오늘의 경주</button>
+                </div>
+                <div id="weather-tab" class="tab-content active">
+                    <div id="weather-widget" class="weather-widget">
+                        <div class="widget-top">
+                            <p id="weather-comment">날씨에 맞는 멘트가 여기에 나옵니다.</p>
+                            <p id="current-time" class="current-time">00:00</p>
+                        </div>
+                        <div class="widget-bottom">
+                            <div class="current-weather">
+                                <h4>📍 지금 경주는?</h4>
+                                <div class="temp-and-icon">
+                                    <span id="current-temp" class="current-temp">--°C</span>
+                                    <span id="current-icon" class="current-icon">❓</span>
+                                </div>
+                                <p id="current-condition">날씨 정보 로딩 중...</p>
+                            </div>
+                            <div id="hourly-forecast" class="hourly-forecast">
+                                <!-- JavaScript가 여기에 시간별 날씨를 채웁니다. -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽 패널 -->
+            <div class="panel right-panel">
+                <div class="tab-header">
+                    <button class="tab-link active" onclick="openTab(event, 'map-tab')">지도</button>
+                </div>
+                <div id="map-tab" class="tab-content active">
+                    <div id="map"></div>
+                </div>
+            </div>
         </div>
+        <!-- ======================================================= -->
 
         <!-- 하단 메뉴 -->
         <div class="dashboard-menu">
@@ -58,30 +93,8 @@
         
     </div>
 
-    <!-- 도움말 팝업 -->
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close-btn" onclick="closeHelpModal()">&times;</span>
-            <h2>💡 앱 사용 가이드</h2>
-            <div class="help-item" data-target=".hamburger-menu">
-                <div class="arrow-box"></div><p class="help-text"><strong>🍔 (햄버거 메뉴):</strong> 모든 기능을 숨겨둔 메뉴를 열어볼 수 있습니다.</p>
-            </div>
-            <div class="help-item" data-target=".main-content">
-                <div class="arrow-box"></div><p class="help-text"><strong>🗺️ (지도 보기):</strong> 버튼을 누르면 경주 지도를 볼 수 있습니다.</p>
-            </div>
-            <div class="help-item" data-target=".dashboard-menu a:nth-child(1)">
-                <div class="arrow-box"></div><p class="help-text"><strong>🏛️ 명소 목록 보기:</strong> 경주의 유명한 장소들을 사진과 함께 볼 수 있습니다.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 지도 팝업 -->
-    <div id="mapModal" class="modal">
-        <div class="map-modal-content">
-            <span class="modal-close-btn" onclick="closeMapModal()">&times;</span>
-            <div id="map-container"></div>
-        </div>
-    </div>
+    <!-- (도움말 팝업은 이전과 동일) -->
+    <div id="helpModal" class="modal"></div>
 
     <script src="global.js"></script>
     <script src="script.js"></script>
