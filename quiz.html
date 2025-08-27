@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경주 랜덤 퀴즈</title>
+    <style>
+        /* CSS 코드는 여기에 전부 포함 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffeea9; 
+            color: #5D4037;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        .back-button {
+            align-self: flex-start;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            color: #5D4037;
+        }
+
+        .quiz-container {
+            background-color: #fff5cc;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .score-tracker {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        #correct-count {
+            color: #28a745;
+        }
+        #incorrect-count {
+            color: #dc3545;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 18px;
+            height: 18px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            transition: background-color 0.5s;
+            flex-shrink: 0; 
+        }
+
+        .correct-dot {
+            background-color: #28a745;
+        }
+
+        .incorrect-dot {
+            background-color: #dc3545;
+        }
+
+        #question-text {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            min-height: 50px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 2px solid #FBC02D;
+            background-color: white;
+            color: #5D4037;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #fdf2d0;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .option-btn.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 25px;
+        }
+
+        .next-btn {
+            margin-top: 10px;
+            padding: 10px 30px;
+            font-size: 16px;
+            border: none;
+            background-color: #FBC02D;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .result {
+            font-size: 24px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">⬅️ 대시보드로 돌아가기</a>
+    
+    <div class="quiz-container">
+        <canvas id="confetti-canvas"></canvas>
+        <h1>🧠 경주 퀴즈</h1>
+
+        <div id="score-tracker" class="score-tracker">
+            <span>맞은 개수: <span id="correct-count">0</span></span> |
+            <span>틀린 개수: <span id="incorrect-count">0</span></span>
+        </div>
+
+        <div id="progress-container" class="progress-container"></div>
+
+        <div id="question-container">
+            <p id="question-text">퀴즈 질문이 여기에 나옵니다.</p>
+        </div>
+        <div id="options-container" class="options-grid"></div>
+        <div id="feedback-text" class="feedback"></div>
+        <button id="next-button" class="next-btn hidden">다음 문제</button>
+        <div id="result-container" class="result hidden"></div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            { question: "신라의 첫 번째 왕은 누구일까요?", options: ["김유신", "박혁거세", "문무왕", "선덕여왕"], answer: 1 },
+            { question: "신라 시대에 별을 관측하던 건물의 이름은 무엇일까요?", options: ["불국사", "석굴암", "첨성대", "포석정"], answer: 2 },
+            { question: "불국사에 있는 유명한 두 개의 탑은 무엇일까요?", options: ["다보탑과 석가탑", "황룡사 9층 목탑과 분황사탑", "감은사지 석탑과 고선사지 석탑", "나원리 5층 석탑과 정혜사지 13층 석탑"], answer: 0 },
+            { question: "토함산 중턱에 인공적으로 만들어진 석굴 사원은 어디일까요?", options: ["골굴사", "기림사", "분황사", "석굴암"], answer: 3 },
+            { question: "신라 시대 경주의 이름은 무엇이었을까요?", options: ["한양", "서라벌", "웅진", "금성"], answer: 1 },
+            { question: "왕자가 거처하고 연회를 베풀던 별궁터로, 야경이 아름다운 이곳의 다른 이름은 무엇일까요?", options: ["안압지", "보문호", "나정", "포석정"], answer: 0 },
+            { question: "신라 시대 왕들의 무덤이 모여있는 대릉원 안에 있는 유명한 무덤은 무엇일까요?", options: ["장군총", "무령왕릉", "천마총", "강서대묘"], answer: 2 },
+            { question: "신라의 화랑은 어떤 집단이었을까요?", options: ["농민 반란군", "귀족 청소년 수련 단체", "왕실 호위 부대", "무역 상인 조합"], answer: 1 },
+            { question: "'죽어서 용이 되어 나라를 지키겠다'며 동해에 묻힌 왕은 누구일까요?", options: ["진흥왕", "법흥왕", "문무왕", "태종무열왕"], answer: 2 },
+            { question: "성덕대왕신종의 다른 이름으로, 아이를 시주하여 만들었다는 전설이 있는 종은 무엇일까요?", options: ["상원사 동종", "에밀레종", "보신각종", "황룡사대종"], answer: 1 },
+            { question: "최근 젊은이들에게 인기가 많으며, 예쁜 카페와 맛집이 모여있는 경주의 거리는 어디일까요?", options: ["황리단길", "인사동", "감천문화마을", "전주한옥마을"], answer: 0 },
+            { question: "경주에 있는 스릴 넘치는 놀이공원 이름은 무엇일까요?", options: ["서울랜드", "경주월드", "에버랜드", "롯데월드"], answer: 1 },
+            { question: "지금은 터만 남아있지만, 과거 신라에서 가장 컸던 절의 이름은 무엇일까요?", options: ["불국사", "감은사", "황룡사", "기림사"], answer: 2 },
+            { question: "불국사와 석굴암이 자리 잡고 있는 산의 이름은 무엇일까요?", options: ["남산", "금오산", "토함산", "소백산"], answer: 2 },
+            { question: "신라 최초의 여왕은 누구일까요?", options: ["진성여왕", "진덕여왕", "선덕여왕", "소덕여왕"], answer: 2 },
+            { question: "부채꼴 모양으로 펼쳐진 신비한 바위 지형인 양남 주상절리가 있는 곳은 어디일까요?", options: ["동해", "서해", "남해", "보문호"], answer: 0 },
+            { question: "신라 시대 월성과 남산을 연결했던 다리로, 최근 복원된 다리의 이름은 무엇일까요?", options: ["월정교", "광안대교", "성산대교", "만파식적교"], answer: 0 },
+            { question: "조선 시대 양반들의 생활 모습을 볼 수 있는 유네스코 세계문화유산 마을은 어디일까요?", options: ["교촌마을", "안동 하회마을", "낙안읍성", "양동마을"], answer: 3 },
+            { question: "경주를 대표하는 유명한 빵은 무엇일까요?", options: ["튀김소보로", "크림빵", "황남빵", "단팥빵"], answer: 2 },
+            { question: "신라의 수많은 유물을 소장하고 있는 국립경주박물관은 어디 옆에 있을까요?", options: ["대릉원", "동궁과 월지", "불국사", "경주역"], answer: 1 },
+            { question: "큰 호수를 중심으로 호텔과 리조트, 공원이 모여있는 경주의 종합 관광단지는 어디일까요?", options: ["해운대", "보문관광단지", "중문관광단지", "대천해수욕장"], answer: 1 },
+            { question: "흐르는 물에 잔을 띄우고 시를 읊으며 연회를 즐겼던 신라 시대 유적지는 어디일까요?", options: ["첨성대", "나정", "포석정", "김유신장군묘"], answer: 2 },
+            { question: "천마총에서 발견된 말다래에 그려진 그림은 무엇일까요?", options: ["나는 말", "용", "호랑이", "거북이"], answer: 0 },
+            { question: "경주엑스포대공원의 상징인 경주타워는 무엇을 음각으로 디자인했을까요?", options: ["다보탑", "황룡사 9층 목탑", "첨성대", "석가탑"], answer: 1 },
+            { question: "경주 최부자댁으로 유명한 한옥마을은 어디일까요?", options: ["양동마을", "황리단길", "성동시장", "교촌마을"], answer: 3 },
+            { question: "삼국통일의 위업을 달성한 김유신 장군의 묘 주변을 둘러싸고 있는 동물 석상은 무엇일까요?", options: ["용", "호랑이", "십이지신상", "사자"], answer: 2 },
+            { question: "돌을 벽돌 모양으로 깎아 쌓은 독특한 탑이 있는 절은 어디일까요?", options: ["분황사", "백률사", "사천왕사", "감은사"], answer: 0 },
+            { question: "경주는 어떤 바다와 인접해 있을까요?", options: ["서해", "남해", "동해", "바다가 없다"], answer: 2 },
+            { question: "신라의 건국 신화에서 박혁거세가 태어난 알을 발견한 곳은 어디일까요?", options: ["계림", "천마총", "오릉", "나정"], answer: 3 },
+            { question: "석가탑을 만들었다는 전설 속 석공의 이름은 무엇일까요?", options: ["김대성", "아사달", "이사부", "거칠부"], answer: 1 },
+            { question: "불국사 청운교와 백운교는 어디로 향하는 다리일까요?", options: ["극락전", "대웅전", "자하문", "무설전"], answer: 2 }, { question: "경주 남산은 야외 박물관이라 불립니다. 그 이유는 무엇일까요?", options: ["실제 박물관이 있어서", "산 전체에 불상과 탑이 많아서", "등산 코스가 잘 되어 있어서", "남산타워가 있어서"], answer: 1 }, { question: "신라의 화려한 금관이 주로 발견되는 무덤 양식은 무엇일까요?", options: ["고인돌", "돌무지덧널무덤", "굴식돌방무덤", "벽돌무덤"], answer: 1 }, { question: "신라의 삼국통일을 도운 당나라 장수 소정방의 이야기가 얽힌 곳은 어디일까요?", options: ["첨성대", "오릉", "용장사곡 삼층석탑", "무열왕릉"], answer: 3 }, { question: "경주 시내에 있는 신라 왕궁의 터는 어디일까요?", options: ["경복궁", "창덕궁", "월성", "안압지"], answer: 2 }, { question: "경주 최씨 고택이 있는 교촌마을에서 맛볼 수 있는 유명한 음식은 무엇일까요?", options: ["교리김밥", "한우물회", "순두부찌개", "밀면"], answer: 0 }, { question: "신라 시대의 금으로 만든 허리띠가 출토된 무덤은 어디일까요?", options: ["금관총", "서봉총", "황남대총", "금령총"], answer: 3 }, { question: "만파식적 설화와 관련 깊은 장소는 어디일까요?", options: ["감은사지", "포석정", "불국사", "대릉원"], answer: 0 }, { question: "경주에 있는 신라미술관의 다른 이름은 무엇일까요?", options: ["선재미술관", "우양미술관", "포항시립미술관", "대구미술관"], answer: 1 }, { question: "신라 시대 화장장으로 추정되는 독특한 유적지는 어디일까요?", options: ["능지탑", "분황사", "나정", "숭덕전"], answer: 0 }, { question: "경주 읍성의 동문 이름은 무엇일까요?", options: ["향일문", "망미문", "징례문", "구추문"], answer: 0 }, { question: "선덕여왕 시기에 창건된, '황제의 용이 사는 절'이라는 뜻의 사찰은 어디일까요?", options: ["황룡사", "분황사", "기림사", "불국사"], answer: 0 }, { question: "석가탑 안에서 발견된 세계에서 가장 오래된 목판 인쇄물은 무엇일까요?", options: ["직지심체요절", "왕오천축국전", "무구정광대다라니경", "삼국유사"], answer: 2 }, { question: "경주 김씨의 시조인 김알지가 태어났다는 전설이 있는 숲은 어디일까요?", options: ["계림", "삼릉숲", "오릉숲", "황성공원"], answer: 0 }, { question: "경주 동해안의 읍천항 갤러리에서 볼 수 있는 것은 무엇일까요?", options: ["조각상", "벽화", "설치미술", "사진"], answer: 1 }, { question: "신라 시대의 우물로, 나라에 큰 일이 있을 때마다 물 색이 변했다는 전설이 있는 곳은 어디일까요?", options: ["나정", "계림", "알영정", "재매정"], answer: 3 }, { question: "경주에 위치한 동국대학교 캠퍼스 안에 있는 유적은 무엇일까요?", options: ["석빙고", "첨성대", "오릉", "포석정"], answer: 0 }, { question: "신라의 마지막 왕인 경순왕의 이름은 무엇일까요?", options: ["김부", "김춘추", "김법민", "김알지"], answer: 0 }, { question: "경주에서 열리는 대표적인 마라톤 대회의 이름은 무엇일까요?", options: ["경주 벚꽃 마라톤", "서울 국제 마라톤", "춘천 마라톤", "공주 백제 마라톤"], answer: 0 }, { question: "골굴사는 무엇으로 유명할까요?", options: ["목탑", "석굴사원과 선무도", "벽화", "범종"], answer: 1 }, { question: "경주 보문단지의 물을 공급하는 댐의 이름은 무엇일까요?", options: ["덕동댐", "안동댐", "소양강댐", "충주댐"], answer: 0 }, { question: "신라의 화백회의가 열렸다고 전해지는 네 곳의 영지 중 하나는 어디일까요?", options: ["오릉", "나정", "서출지", "청령산"], answer: 1 }, { question: "경주에서만 맛볼 수 있는 특별한 해장국은 무엇일까요?", options: ["콩나물국밥", "뼈해장국", "묵해장국", "선지해장국"], answer: 2 }, { question: "이차돈의 순교와 관련된 사찰은 어디일까요?", options: ["자추사(백률사)", "황룡사", "흥륜사", "영묘사"], answer: 0 }, { question: "경주 남산의 삼릉계곡에 있는 세 왕릉을 무엇이라 부를까요?", options: ["오릉", "삼릉", "고분군", "왕릉"], answer: 1 }, { question: "경주를 '달리는 박물관'이라고 부르는 이유는 무엇일까요?", options: ["박물관이 많아서", "뛰어다니며 구경해야 해서", "도시 전체가 유적지라서", "버스가 많아서"], answer: 2 }, { question: "괘릉의 무인석상은 어느 나라 사람의 모습을 하고 있을까요?", options: ["중국", "일본", "서역(아라비아)", "고구려"], answer: 2 }, { question: "신라 시대의 시장터로 추정되는 곳은 어디일까요?", options: ["동궁과 월지", "황리단길", "성동시장", "동시와 서시"], answer: 3 }, { question: "경주에 있는 '쪽샘지구'는 무엇을 하는 곳일까요?", options: ["유적 발굴 및 연구", "공원", "쇼핑센터", "전통시장"], answer: 0 }, { question: "여름에 연꽃으로 가득 차는 동궁과 월지 옆의 연못은 어디일까요?", options: ["보문호", "안압지", "연지", "오리연못"], answer: 2 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionTextElem = document.getElementById('question-text');
+            const optionsContainerElem = document.getElementById('options-container');
+            const feedbackTextElem = document.getElementById('feedback-text');
+            const nextButtonElem = document.getElementById('next-button');
+            const resultContainerElem = document.getElementById('result-container');
+            const progressContainerElem = document.getElementById('progress-container');
+            const correctCountElem = document.getElementById('correct-count');
+            const incorrectCountElem = document.getElementById('incorrect-count');
+            const confettiCanvas = document.getElementById('confetti-canvas');
+            const ctx = confettiCanvas.getContext('2d');
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let incorrectCount = 0;
+            let quizQuestions = [];
+            let confettiParticles = [];
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function startQuiz() {
+                shuffleArray(allQuestions);
+                quizQuestions = allQuestions.slice(0, 5);
+
+                currentQuestionIndex = 0;
+                score = 0;
+                incorrectCount = 0; 
+                updateScoreTracker(); 
+                nextButtonElem.textContent = "다음 문제";
+                resultContainerElem.classList.add('hidden');
+                
+                // ==================== 오류 수정: 이벤트 핸들러 관리 ====================
+                // 기존 핸들러를 제거하고 새로 설정하여 중복 실행 방지
+                nextButtonElem.removeEventListener('click', handleNextButtonClick);
+                nextButtonElem.removeEventListener('click', startQuiz);
+                nextButtonElem.addEventListener('click', handleNextButtonClick);
+                // =====================================================================
+                
+                progressContainerElem.innerHTML = '';
+                for (let i = 0; i < quizQuestions.length; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('progress-dot');
+                    dot.id = `dot-${i}`;
+                    progressContainerElem.appendChild(dot);
+                }
+                
+                showQuestion();
+            }
+
+            function showQuestion() {
+                resetState();
+                const currentQuestion = quizQuestions[currentQuestionIndex];
+                questionTextElem.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+                
+                currentQuestion.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-btn');
+                    button.addEventListener('click', () => selectAnswer(index));
+                    optionsContainerElem.appendChild(button);
+                });
+            }
+
+            function resetState() {
+                nextButtonElem.classList.add('hidden');
+                feedbackTextElem.textContent = '';
+                while (optionsContainerElem.firstChild) {
+                    optionsContainerElem.removeChild(optionsContainerElem.firstChild);
+                }
+            }
+
+            function selectAnswer(selectedIndex) {
+                const currentQuestion = quizQuestions[currentQuestionIndex];
+                const correct = selectedIndex === currentQuestion.answer;
+                
+                const currentDot = document.getElementById(`dot-${currentQuestionIndex}`);
+
+                if (correct) {
+                    score++;
+                    feedbackTextElem.textContent = "정답입니다! 🎉";
+                    feedbackTextElem.style.color = '#28a745';
+                    currentDot.classList.add('correct-dot');
+                } else {
+                    incorrectCount++;
+                    feedbackTextElem.textContent = `틀렸어요. 정답은 '${currentQuestion.options[currentQuestion.answer]}'입니다.`;
+                    feedbackTextElem.style.color = '#dc3545';
+                    currentDot.classList.add('incorrect-dot');
+                }
+                
+                updateScoreTracker(); 
+
+                Array.from(optionsContainerElem.children).forEach((button, index) => {
+                    if (index === currentQuestion.answer) {
+                        button.classList.add('correct');
+                    } else if (index === selectedIndex) {
+                        button.classList.add('incorrect');
+                    }
+                    button.disabled = true;
+                });
+
+                nextButtonElem.classList.remove('hidden');
+            }
+            
+            function updateScoreTracker() {
+                correctCountElem.textContent = score;
+                incorrectCountElem.textContent = incorrectCount;
+            }
+
+            function showResults() {
+                resetState();
+                questionTextElem.textContent = "퀴즈 끝!";
+                resultContainerElem.innerHTML = `<h2>최종 점수</h2><p>총 ${quizQuestions.length}문제 중 ${score}문제를 맞혔어요!</p>`;
+                resultContainerElem.classList.remove('hidden');
+                nextButtonElem.textContent = "다시 풀기";
+                nextButtonElem.classList.remove('hidden');
+                
+                // ==================== 오류 수정: 이벤트 핸들러 관리 ====================
+                nextButtonElem.removeEventListener('click', handleNextButtonClick);
+                nextButtonElem.addEventListener('click', startQuiz, { once: true }); // 한번만 실행되도록 설정
+                // =====================================================================
+
+                if (score === quizQuestions.length) {
+                    resultContainerElem.innerHTML += `<p>🎉 완벽해요! 경주 전문가 스탬프가 잠금 해제되었습니다! 🥳</p>`;
+                    localStorage.setItem('gyeongjuExpertUnlocked', 'true');
+                    triggerConfetti();
+                }
+            }
+            
+            function handleNextButtonClick() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }
+
+            function triggerConfetti() {
+                confettiCanvas.width = confettiCanvas.parentElement.offsetWidth;
+                confettiCanvas.height = confettiCanvas.parentElement.offsetHeight;
+                confettiParticles = [];
+                for (let i = 0; i < 100; i++) {
+                    confettiParticles.push(createParticle());
+                }
+                animateConfetti();
+            }
+
+            function createParticle() {
+                const x = Math.random() * confettiCanvas.width;
+                const y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+                const size = Math.random() * 5 + 2;
+                const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                const speed = Math.random() * 3 + 2;
+                return { x, y, size, color, speed };
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                confettiParticles.forEach((p, index) => {
+                    p.y += p.speed;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.size, p.size * 2);
+                    if (p.y > confettiCanvas.height) {
+                        confettiParticles.splice(index, 1);
+                    }
+                });
+                if (confettiParticles.length > 0) {
+                    requestAnimationFrame(animateConfetti);
+                }
+            }
+
+            startQuiz();
+        });
+    </script>
+</body>
+</html>
