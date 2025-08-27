@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내비게이션</title>
+    <!-- 무료 지도(Leaflet) CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="navigation.css">
+</head>
+<body>
+    <div class="nav-page-container">
+        <!-- 지도 표시 영역 -->
+        <div id="map"></div>
+
+        <!-- 컨트롤 패널 -->
+        <div class="control-panel">
+            <a href="index.html" class="back-button">⬅️ 대시보드로 돌아가기</a>
+            <h1>🗺️ 길찾기</h1>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <label for="startPoint">출발지</label>
+                    <input type="text" id="startPoint" placeholder="목록 또는 지도에서 선택" readonly>
+                </div>
+                <div class="input-wrapper">
+                    <label for="endPoint">도착지</label>
+                    <input type="text" id="endPoint" placeholder="목록 또는 지도에서 선택" readonly>
+                </div>
+            </div>
+            
+            <!-- ==================== 명소 목록 추가 ==================== -->
+            <label class="list-label">주요 관광지 목록</label>
+            <div id="attraction-list" class="attraction-list">
+                <!-- JavaScript가 여기에 명소 목록을 채웁니다 -->
+            </div>
+            <!-- ======================================================= -->
+
+            <button class="route-find-btn">경로 찾기 (준비 중)</button>
+        </div>
+    </div>
+
+    <!-- 무료 지도(Leaflet) JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- 모든 명소 정보가 담긴 공용 데이터 -->
+    <script src="global_data.js"></script>
+    <!-- 내비게이션 페이지 기능 -->
+    <script src="navigation.js"></script>
+</body>
+</html>
